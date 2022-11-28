@@ -1,0 +1,18 @@
+### garnet configs ###
+r: 50
+k: 50
+gamma: 0.0003
+weighted_knn: False
+adj_norm: False
+use_feature: False
+embedding_norm: null
+
+
+### GNN training configs ###
+epochs: 300
+lr: 0.05
+hidden_dim: 64
+dropout: 0.5
+weight_decay: 0.0
+p: 10
+c: 0.9
