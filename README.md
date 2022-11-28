@@ -1,13 +1,13 @@
 GARNET
 ===============================
 
-GARNET is a scalable reduced-rank topology learning method for constructing GNN models robust to adversarial attacks on homo/heterophilic graphs. More details are available in our paper: https://arxiv.org/abs/2201.12741
+GARNET is a scalable reduced-rank topology learning method for constructing GNN models robust to adversarial attacks on homo/heterophilic graphs. More details are available in our paper: https://openreview.net/forum?id=kvwWjYQtmw
 
 ![Overview of the GARNET framework](/GARNET.png)
 
 Citation
 ------------
-If you use GARNET in your research, please cite our preliminary work.
+If you use GARNET in your research, please cite our work published at LoG'22.
 
 ```
 @inproceedings{
