@@ -45,14 +45,14 @@ Example Usage
 
 **Note** We only show how to run GARNET-GCN on Cora dataset below. For other settings, you only need to change the names of dataset and backbone model.
 
-* GARNET-GCN on clean Cora graph under Nettack test nodes:
+* GARNET-GCN on clean Cora graph under Nettack test nodes: \
 `python main.py --device 0 --backbone gcn --dataset cora --attack nettack --ptb_rate 1.0`
 
-* GARNET-GCN on adversarial Cora graph under Nettack with 5 perturbation per target node:
+* GARNET-GCN on adversarial Cora graph under Nettack with 5 perturbation per target node: \
 `python main.py --device 0 --backbone gcn --dataset cora --attack nettack --ptb_rate 5.0 --perturbed`
 
-* GARNET-GCN on clean Cora graph under Metattack test nodes:
+* GARNET-GCN on clean Cora graph under Metattack test nodes: \
 `python main.py --device 0 --backbone gcn --dataset cora --attack meta --ptb_rate 0.1`
 
-* GARNET-GCN on adversarial Cora graph under Metattack with 20% perturbation rate:
+* GARNET-GCN on adversarial Cora graph under Metattack with 20% perturbation rate: \
 `python main.py --device 0 --backbone gcn --dataset cora --attack meta --ptb_rate 0.2 --perturbed`
