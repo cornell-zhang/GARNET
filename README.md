@@ -56,3 +56,15 @@ Example Usage
 
 * GARNET-GCN on adversarial Cora graph under Metattack with 20% perturbation rate: \
 `python main.py --device 0 --backbone gcn --dataset cora --attack meta --ptb_rate 0.2 --perturbed`
+
+Experimental Results
+-------
+
+**Note** We further tune some hyperparameters in GARNET and achieve even better results than what we report in our paper. The improved results on Cora dataset are shown in the table below. Thus, we recommend users to use the new hyperparameter setting of GARNET (available in `configs/`).
+
+| Method        | Accuracy reported in our paper      | New accuracy  |
+| :-----------: |:-------------:| :-------:|
+| GARNET-GCN-Net-Clean      |  81.08 ± 2.05   | 83.25 ± 1.51  |
+| GARNET-GCN-Net-Adv        |  67.04 ± 2.05   | 76.39 ± 1.16  |
+| GARNET-GCN-Meta-Clean     |  79.64 ± 0.75   | 81.90 ± 0.34  |
+| GARNET-GCN-Meta-Adv       |  73.89 ± 0.91   | 76.23 ± 0.87  |
