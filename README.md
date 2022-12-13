@@ -64,7 +64,7 @@ Experimental Results
 
 | Method        | Accuracy reported in our paper      | New accuracy  |
 | :-----------: |:-------------:| :-------:|
-| GARNET-GCN-Net-Clean      |  81.08 ± 2.05   | 83.25 ± 1.51 (2.17%&uarr)  |
-| GARNET-GCN-Net-Adv        |  67.04 ± 2.05   | 76.39 ± 1.16 (9.35%&uarr)  |
-| GARNET-GCN-Meta-Clean     |  79.64 ± 0.75   | 81.90 ± 0.34 (2.26%&uarr)  |
-| GARNET-GCN-Meta-Adv       |  73.89 ± 0.91   | 76.23 ± 0.87 (2.34%&uarr)  |
+| GARNET-GCN-Net-Clean      |  81.08 ± 2.05   | 83.25 ± 1.51 (2.17% &#8593)  |
+| GARNET-GCN-Net-Adv        |  67.04 ± 2.05   | 76.39 ± 1.16 (9.35% &#8593)  |
+| GARNET-GCN-Meta-Clean     |  79.64 ± 0.75   | 81.90 ± 0.34 (2.26% &#8593)  |
+| GARNET-GCN-Meta-Adv       |  73.89 ± 0.91   | 76.23 ± 0.87 (2.34% &#8593)  |
