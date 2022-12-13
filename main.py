@@ -1,19 +1,16 @@
 import argparse
 import os
 import pickle
-from opt_einsum import contract
 
 import numpy as np
-from numpy import linalg as LA
-from scipy.sparse import csr_matrix, load_npz, diags
-from scipy.sparse.linalg import svds, eigs
+from scipy.sparse import load_npz
 import torch
 from deeprobust.graph.data import Dataset, PrePtbDataset
 
 from model import ada_filter, GCN
 from logger import Logger, SimpleLogger
 from utils import *
-from hnsw import *
+from garnet import garnet
 
 
 def main(args):
@@ -21,6 +18,7 @@ def main(args):
     device = f'cuda:{args.device}' if args.device > -1 else 'cpu'
     device = torch.device(device)
 
+    ## load dataset
     dataset = args.dataset
     if dataset in ['chameleon', 'squirrel']:
         with open(f'data/{dataset}_data.pickle', 'rb') as handle:
@@ -53,74 +51,43 @@ def main(args):
         if args.attack == 'nettack':
             idx_test = perturbed_data.target_nodes
 
-    if args.no_garnet:
-        edge_index = SparseTensor.from_scipy(adj_mtx).float().to(device)
+    if args.dataset == "chameleon" and args.attack == "nettack":
+        embedding_symmetric = True
     else:
-        adj_mtx = adj_mtx.asfptype()
-        num_nodes = adj_mtx.shape[0]
-        if args.adj_norm:
-            adj_mtx = normal_adj(adj_mtx)
-        U, S, Vt = svds(adj_mtx, k=args.r)
+        embedding_symmetric = False
 
-        spec_embed = np.sqrt(S.reshape(1,-1))*U
-        spec_embed_Vt = np.sqrt(S.reshape(1,-1))*Vt.transpose()
-        spec_embed = embedding_normalize(spec_embed, args.embedding_norm)
-        spec_embed_Vt = embedding_normalize(spec_embed_Vt, args.embedding_norm)
-        if args.use_feature:
-            feat_embed = adj_mtx @ (adj_mtx @ features)/2
-            feat_embed = embedding_normalize(feat_embed, args.embedding_norm)
-            spec_embed = np.concatenate((spec_embed, feat_embed), axis=1)
-            spec_embed_Vt = np.concatenate((spec_embed_Vt, feat_embed), axis=1)
+    ## purify input graph via GARNET
+    if not args.no_garnet:
+        adj_mtx = garnet(
+                adj_mtx,
+                features,
+                r=args.r,
+                k=args.k,
+                gamma=args.gamma,
+                use_feature=args.use_feature,
+                embedding_norm=args.embedding_norm,
+                embedding_symmetric=embedding_symmetric,
+                full_distortion=args.full_distortion,
+                adj_norm=args.adj_norm,
+                weighted_knn=args.weighted_knn)
 
-        adj_mtx = hnsw(spec_embed, k=args.k)
-        diag_mtx = diags(adj_mtx.diagonal(), 0)
-        row, col = adj_mtx.nonzero()
-        lower_diag_idx = np.argwhere(row>col).reshape(-1)
-        row = row[lower_diag_idx]
-        col = col[lower_diag_idx]
-        row_embed = spec_embed[row]
-        if args.dataset == "chameleon" and args.attack == "nettack":
-            col_embed = spec_embed[col]
-        else:
-            col_embed = spec_embed_Vt[col]
-        embed_sim = contract("ik, ik -> i" , row_embed, col_embed)
-
-        if args.full_distortion:
-            ori_dist = LA.norm((row_embed-col_embed), axis=1)
-            S_b, U_b = eigs(adj2laplacian(adj_mtx), k=args.r, which='SM')
-            S_b, U_b = S_b[1:].real, U_b[:, 1:].real
-            base_spec_embed = U_b/np.sqrt(S_b.reshape(1,-1))
-            base_spec_embed = embedding_normalize(base_spec_embed, args.embedding_norm)
-            base_row_embed = base_spec_embed[row]
-            base_col_embed = base_spec_embed[col]
-            base_dist = LA.norm((base_row_embed-base_col_embed), axis=1)
-            spec_dist = base_dist/ori_dist
-            idx = np.argwhere(spec_dist>args.gamma).reshape(-1,)
-        else:
-            idx = np.argwhere(embed_sim>args.gamma).reshape(-1,)
-
-        new_row = row[idx]
-        new_col = col[idx]
-        if args.weighted_knn:
-            val = embed_sim[idx]
-        else:
-            val = np.repeat(1, new_row.shape[0])
-        adj_mtx = csr_matrix((val, (new_row, new_col)), shape=(num_nodes, num_nodes))
-        adj_mtx = adj_mtx + adj_mtx.transpose() + diag_mtx
-        edge_index = SparseTensor.from_scipy(adj_mtx).float().to(device)
-
+    edge_index = SparseTensor.from_scipy(adj_mtx).float().to(device)
     labels = torch.as_tensor(labels, dtype=torch.long).to(device)
     x = torch.from_numpy(features).to(device)
     d = x.shape[1]
     c = labels.max().item() + 1
 
+    ## choose backbone GNN model
     if args.backbone == "gprgnn":
         model = ada_filter(d, args.hidden_dim, c, dropout=args.dropout, coe=args.c, P=args.p)
     elif args.backbone == "gcn":
         model = GCN(d, args.hidden_dim, c, num_layers=3, dropout=args.dropout, use_bn=False, norm=True)
+    else:
+        raise NotImplementedError
     model = model.to(device)
-
     logger = Logger(args.runs, args)
+
+    ## GNN training
     for run in range(args.runs):
         model.reset_parameters()
         optimizer = torch.optim.Adam(model.parameters(),
@@ -147,9 +114,10 @@ def main(args):
                     f'Test: {100 * result[2]:.2f}%')
         logger.print_statistics(run)
 
-    ### Print results ###
+    ## print results
     best_val, best_test = logger.print_statistics()
 
+    ## save results
     if not os.path.exists("results"):
         os.makedirs("results")
     filename = f'results/{args.dataset}.csv'
@@ -214,6 +182,8 @@ if __name__ == "__main__":
                         help='adaptive filter degree in GPRGNN')
     parser.add_argument('--c', type=float,
                         help='coefficients of adaptive filter in GPRGNN')
+
+    ## combine input arguments w/ arguments in configuration files
     args = parser.parse_args()
     args = preprocess_args(args)
     print(args)
