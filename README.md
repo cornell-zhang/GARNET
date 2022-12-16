@@ -28,6 +28,8 @@ Requirements
 * opt_einsum
 * deeprobust
 * ogb
+* pyyaml
+* gdown
 
 Installation
 ------------
