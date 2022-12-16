@@ -68,3 +68,11 @@ Experimental Results
 | GARNET-GCN-Net-Adv        |  67.04 ± 2.05   | 76.39 ± 1.16 (9.35%↑)  |
 | GARNET-GCN-Meta-Clean     |  79.64 ± 0.75   | 81.90 ± 0.34 (2.26%↑)  |
 | GARNET-GCN-Meta-Adv       |  73.89 ± 0.91   | 76.23 ± 0.87 (2.34%↑)  |
+
+Experiments on Large Graphs
+-------
+
+```
+1. cd ogbn/
+2. see README.md for instructions
+```
