@@ -1,7 +1,7 @@
 #!/bin/bash
 
-gnn='gprgnn'
-dset='citeseer'
+gnn='gcn'
+dset='cora'
 
 # Nettack (clean)
 python main.py --device 0 --backbone $gnn --dataset $dset --attack nettack --ptb_rate 1.0;
