@@ -42,6 +42,16 @@ Installation
 5. pip install -r requirements.txt
 ```
 
+Available Dataset
+-------
+* Cora
+* Citeseer (newly added on 1/10/2023)
+* Pubmed
+* Chameleon
+* Squirrel
+* ogbn-arxiv
+* ogbn-products
+
 Example Usage
 -----
 
