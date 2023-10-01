@@ -1,7 +1,7 @@
 GARNET
 ===============================
 
-GARNET on OGB datasets.
+GARNET on OGB datasets. All input graphs in our experiments are available [here](https://drive.google.com/drive/folders/1jZv481czJzijjzsIDo1FnNqQuG74NM2v?usp=sharing): 
 
 Example Usage
 -----
